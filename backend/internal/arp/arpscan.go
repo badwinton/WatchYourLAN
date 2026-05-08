@@ -16,6 +16,24 @@ import (
 
 var arpArgs string
 
+// extractIface finds the interface name from an arp-scan argument string.
+// It looks for -I or --interface flags, and falls back to the last word.
+func extractIface(args string) string {
+	parts := strings.Split(args, " ")
+	for i, part := range parts {
+		if (part == "-I" || part == "--interface") && i+1 < len(parts) {
+			return parts[i+1]
+		}
+		if strings.HasPrefix(part, "-I=") {
+			return strings.TrimPrefix(part, "-I=")
+		}
+		if strings.HasPrefix(part, "--interface=") {
+			return strings.TrimPrefix(part, "--interface=")
+		}
+	}
+	return parts[len(parts)-1]
+}
+
 func scanIface(iface string) string {
 	var cmd *exec.Cmd
 
@@ -89,9 +107,9 @@ func Scan(ifaces, args string, strs []string) []models.Host {
 		slog.Debug("Scanning string " + s)
 		text = scanStr(s)
 		slog.Debug("Found IPs: \n" + text)
-		p = strings.Split(s, " ")
 
-		foundHosts = append(foundHosts, parseOutput(text, p[len(p)-1])...)
+		iface := extractIface(s)
+		foundHosts = append(foundHosts, parseOutput(text, iface)...)
 	}
 
 	return foundHosts
