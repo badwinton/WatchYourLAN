@@ -33,7 +33,7 @@ function Header() {
     <link rel="stylesheet" href={iconsPath()}></link> {/* icons */}
     <link rel="stylesheet" href={themePath()}></link> {/* theme */}
     <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-      <div class="container-lg">
+      <div class="container-fluid">
         <a class="navbar-brand" href="/">
           <img src="/fs/public/favicon.png" style="width: 2em"/>
         </a>

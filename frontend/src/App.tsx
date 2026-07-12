@@ -19,7 +19,7 @@ function App() {
   return (
     <>
     <Header></Header>
-    <div class="container-lg">
+    <div class="container-fluid">
       <div class="row">
         <div class="col-md mt-4 mb-4">
           <Router>
