@@ -28,6 +28,8 @@ export interface Conf {
 	ArpStrs:   string[];
 	TrimHist:  number;
 	ShoutURL:  string;
+	MacLookup: string;
+	MacLookupKey: string;
 	UseDB:     string;
 	PGConnect: string;
 	// InfluxDB
@@ -68,6 +70,8 @@ export const emptyConf:Conf = {
 	ArpStrs: [],
 	TrimHist: 48,
 	ShoutURL: "",
+	MacLookup: "false",
+	MacLookupKey: "",
 	UseDB: "",
 	PGConnect: "",
 	InfluxEnable:  false,

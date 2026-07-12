@@ -24,6 +24,7 @@ func ScanNow() {
 	defer scanMu.Unlock()
 
 	foundHosts := arp.Scan(conf.AppConfig.Ifaces, conf.AppConfig.ArpArgs, conf.AppConfig.ArpStrs)
+	check.SetMacLookup(conf.AppConfig.MacLookup == "true", conf.AppConfig.MacLookupKey, conf.AppConfig.DirPath)
 	foundHosts = check.EnrichHosts(foundHosts)
 
 	compareHosts(newFoundHostIndex(foundHosts))

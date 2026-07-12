@@ -18,6 +18,9 @@ type Conf struct {
 	TrimHist int
 	ShoutURL string
 	Version  string
+	// MAC vendor lookup (external API, opt-in)
+	MacLookup    string
+	MacLookupKey string
 	// PostgreSQL
 	UseDB     string
 	PGConnect string

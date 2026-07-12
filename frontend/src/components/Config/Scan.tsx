@@ -45,6 +45,25 @@ function Scan() {
               </select></td>
             </tr>
             <tr>
+              <td>MAC vendor lookup<br/><small class="text-muted">sends OUI to maclookup.app</small></td>
+              <td><select name="maclookup" class="form-select">
+                <Show
+                  when={appConfig().MacLookup == "true"}
+                  fallback={<>
+                    <option value="true">true</option>
+                    <option value="false" selected>false</option>
+                  </>}
+                >
+                  <option value="true" selected>true</option>
+                  <option value="false">false</option>
+                </Show>
+              </select></td>
+            </tr>
+            <tr>
+              <td>MAC lookup API key<br/><small class="text-muted">optional</small></td>
+              <td><input name="mackey" type="text" class="form-control" value={appConfig().MacLookupKey}></input></td>
+            </tr>
+            <tr>
               <td>Trim History (hours)</td>
               <td><input name="trim" type="number" class="form-control" value={appConfig().TrimHist}></input></td>
             </tr>
