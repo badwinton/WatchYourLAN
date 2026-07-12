@@ -1,4 +1,5 @@
 import { apiDelHost, apiEditHost, apiWOL } from "../../functions/api";
+import { vendorIcon } from "../../functions/vendor";
 
 import { debounce } from "@solid-primitives/scheduled"; 
 
@@ -73,7 +74,10 @@ function HostCard(_props: any) {
           </tr>
           <tr>
             <td>Hardware</td>
-            <td>{_props.host.Hw}</td>
+            <td>
+              <i class={"bi " + vendorIcon(_props.host.Hw)} style="opacity:0.8;"></i>
+              &nbsp;{_props.host.Hw}
+            </td>
           </tr>
           <tr>
             <td>Date</td>

@@ -1,6 +1,7 @@
 import { createSignal, Show } from "solid-js";
 import { editNames, selectedIDs, setSelectedIDs } from "../../functions/exports";
 import { apiEditHost } from "../../functions/api";
+import { vendorIcon } from "../../functions/vendor";
 
 import { debounce } from "@solid-primitives/scheduled"; 
 
@@ -75,7 +76,10 @@ function TableRow(_props: any) {
       <td>{_props.host.Iface}</td>
       <td><a href={"http://" + _props.host.IP} target="_blank">{_props.host.IP}</a></td>
       <td>{_props.host.Mac}</td>
-      <td title={_props.host.Hw}>{_props.host.Hw.slice(0,12)+".."}</td>
+      <td title={_props.host.Hw}>
+        <i class={"bi " + vendorIcon(_props.host.Hw)} style="opacity:0.8;"></i>
+        &nbsp;{_props.host.Hw.slice(0,12)+".."}
+      </td>
       <td>{_props.host.Date}</td>
       <td>
         <div class="form-check form-switch">
