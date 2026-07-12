@@ -78,7 +78,7 @@ function TableRow(_props: any) {
       <td>{_props.host.Mac}</td>
       <td title={_props.host.Hw}>
         <i class={"bi " + vendorIcon(_props.host.Hw)} style="opacity:0.8;"></i>
-        &nbsp;{_props.host.Hw.slice(0,12)+".."}
+        &nbsp;{_props.host.Hw}
       </td>
       <td>{_props.host.Date}</td>
       <td>
