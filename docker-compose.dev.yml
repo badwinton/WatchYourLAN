@@ -1,0 +1,45 @@
+# Dev compose for testing the pr237-device-identity branch locally.
+#
+# Builds the image from the local Dockerfile (which compiles the Go backend
+# and serves the already-built frontend from backend/internal/web/public).
+# arp-scan needs NET_ADMIN/NET_RAW.
+#
+# NOTE: uses a normal port mapping (NOT network_mode: host). On Docker Desktop
+# (Windows/WSL2) host networking is isolated in Docker's own netns and is NOT
+# reachable from your Windows browser - so port mapping is the reliable choice.
+# Trade-off: arp-scan then scans the Docker NAT subnet (not your real LAN).
+# For REAL LAN scanning on Windows, run the backend natively in WSL2 instead
+# (see instructions below / or use docker-compose.dev.wsl.yml).
+#
+# Usage (from repo root):
+#   docker compose -f docker-compose.dev.yml up --build
+# then open http://localhost:8840
+#
+# Leave IFACES empty to use the new auto-select scan interfaces feature.
+
+services:
+  wyl-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wyl-pr237:dev
+    container_name: wyl-pr237
+    restart: "no"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    ports:
+      - "8840:8840"
+    environment:
+      TZ: ${TZ:-Europe/London}
+      HOST: "0.0.0.0"
+      PORT: "8840"
+      LOG_LEVEL: "debug"      # shows the actual arp-scan command and discovery logs
+      THEME: "sand"
+      COLOR: "dark"
+    volumes:
+      - wyl-dev-data:/data/WatchYourLAN
+
+volumes:
+  wyl-dev-data:
+
