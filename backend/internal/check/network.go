@@ -29,8 +29,9 @@ func DNS(host models.Host) (name, dns string) {
 }
 
 type hostIdentity struct {
-	names    []string
-	hardware string
+	names      []string
+	hardware   string
+	deviceType string
 }
 
 // EnrichHosts fills host names from local DNS, mDNS and SSDP/UPnP discovery.
@@ -59,6 +60,10 @@ func EnrichHosts(hosts []models.Host) []models.Host {
 
 		if identity, ok := avahi[hosts[i].IP]; ok {
 			names = appendUnique(names, identity.names...)
+
+			if isUnknownHardware(hosts[i].Hw) && identity.deviceType != "" {
+				hosts[i].Hw = identity.deviceType
+			}
 		}
 
 		if identity, ok := ssdp[hosts[i].IP]; ok {
@@ -66,6 +71,9 @@ func EnrichHosts(hosts []models.Host) []models.Host {
 
 			if isUnknownHardware(hosts[i].Hw) && identity.hardware != "" {
 				hosts[i].Hw = identity.hardware
+			}
+			if isUnknownHardware(hosts[i].Hw) && identity.deviceType != "" {
+				hosts[i].Hw = identity.deviceType
 			}
 		}
 
@@ -169,6 +177,9 @@ func discoverAvahiBrowse(targetIPs map[string]struct{}) map[string]hostIdentity 
 
 		identity := identities[ip]
 		identity.names = appendUnique(identity.names, parts[3], parts[6])
+		if deviceType := mdnsDeviceType(parts[4]); deviceType != "" {
+			identity.deviceType = deviceType
+		}
 		identities[ip] = identity
 	}
 
@@ -240,7 +251,10 @@ func discoverSSDP(targetIPs map[string]struct{}) map[string]hostIdentity {
 		identity := identities[ip]
 		desc := fetchSSDPDescription(location)
 		identity.names = appendUnique(identity.names, desc["friendlyName"])
-		identity.hardware = joinNonEmpty(desc["manufacturer"], desc["modelName"], desc["modelNumber"])
+		identity.hardware = buildSSDPHardware(desc, headers["server"])
+		if identity.deviceType == "" {
+			identity.deviceType = ssdpDeviceType(desc["deviceType"])
+		}
 		identities[ip] = identity
 	}
 
@@ -322,10 +336,15 @@ func fetchSSDPDescription(location string) map[string]string {
 func parseSSDPDescription(body []byte) map[string]string {
 	result := make(map[string]string)
 	wanted := map[string]struct{}{
-		"friendlyName": {},
-		"manufacturer": {},
-		"modelName":    {},
-		"modelNumber":  {},
+		"friendlyName":     {},
+		"manufacturer":     {},
+		"modelName":        {},
+		"modelNumber":      {},
+		"modelDescription": {},
+		"serialNumber":     {},
+		"deviceType":       {},
+		"presentationURL":  {},
+		"UDN":              {},
 	}
 
 	decoder := xml.NewDecoder(bytes.NewReader(body))
@@ -354,6 +373,97 @@ func parseSSDPDescription(body []byte) map[string]string {
 	}
 
 	return result
+}
+
+// mdnsDeviceType maps a DNS-SD service type (e.g. "_airplay._tcp") to a
+// human-readable device class. Returns "" when no mapping is known so callers
+// can ignore it.
+func mdnsDeviceType(serviceType string) string {
+	t := strings.ToLower(strings.TrimSpace(serviceType))
+	switch {
+	case strings.Contains(t, "_airplay"), strings.Contains(t, "_raop"):
+		return "Apple TV / AirPlay"
+	case strings.Contains(t, "_googlecast"):
+		return "Chromecast / Google TV"
+	case strings.Contains(t, "_hue"):
+		return "Philips Hue"
+	case strings.Contains(t, "_hap"):
+		return "Apple HomeKit"
+	case strings.Contains(t, "_ipp"), strings.Contains(t, "_printer"):
+		return "Printer"
+	case strings.Contains(t, "_ssh"), strings.Contains(t, "_sftp"):
+		return "SSH Server"
+	case strings.Contains(t, "_smb"), strings.Contains(t, "samba"):
+		return "SMB / File Share"
+	case strings.Contains(t, "_nas"), strings.Contains(t, "_adisk"):
+		return "NAS / Storage"
+	case strings.Contains(t, "_spotify"):
+		return "Spotify Connect"
+	case strings.Contains(t, "sonos"):
+		return "Sonos"
+	case strings.Contains(t, "_rfb"):
+		return "VNC"
+	case strings.Contains(t, "_http"):
+		return "Web Device"
+	case strings.Contains(t, "_workstation"):
+		return "Workstation"
+	case strings.Contains(t, "_mediaserver"), strings.Contains(t, "_dacp"):
+		return "Media Server"
+	case strings.Contains(t, "camera"), strings.Contains(t, "_dvrcam"):
+		return "Camera"
+	}
+	return ""
+}
+
+// ssdpDeviceType maps a UPnP deviceType URN (e.g.
+// "urn:schemas-upnp-org:device:MediaRenderer:1") to a short class label.
+func ssdpDeviceType(deviceType string) string {
+	t := strings.ToLower(strings.TrimSpace(deviceType))
+	switch {
+	case strings.Contains(t, "internetgatewaydevice"), strings.Contains(t, "wanconnectiondevice"):
+		return "Router / Gateway"
+	case strings.Contains(t, "mediarenderer"), strings.Contains(t, "mediaplayer"):
+		return "Media Renderer"
+	case strings.Contains(t, "mediaserver"):
+		return "Media Server"
+	case strings.Contains(t, "remotedisplay"):
+		return "Streaming Box"
+	case strings.Contains(t, "printer"):
+		return "Printer"
+	case strings.Contains(t, "camera"), strings.Contains(t, "cameras"):
+		return "Camera"
+	case strings.Contains(t, "storage"), strings.Contains(t, "nas"):
+		return "NAS / Storage"
+	case strings.Contains(t, "phone"), strings.Contains(t, "voip"):
+		return "VoIP / Phone"
+	case strings.Contains(t, "tv"), strings.Contains(t, "television"):
+		return "Smart TV"
+	}
+	return ""
+}
+
+// buildSSDPHardware assembles the most useful hardware string from a parsed
+// UPnP description, falling back to the SSDP SERVER header when the
+// manufacturer/model fields are absent, and appending the serial number when
+// present.
+func buildSSDPHardware(desc map[string]string, server string) string {
+	hw := joinNonEmpty(
+		desc["manufacturer"],
+		desc["modelName"],
+		desc["modelNumber"],
+		desc["modelDescription"],
+	)
+	if hw == "" && server != "" {
+		hw = server
+	}
+	if sn := desc["serialNumber"]; sn != "" {
+		if hw == "" {
+			hw = "S/N " + sn
+		} else {
+			hw = hw + " (S/N " + sn + ")"
+		}
+	}
+	return hw
 }
 
 func appendUnique(items []string, more ...string) []string {
