@@ -21,12 +21,22 @@ const (
 	macLookupTO    = 2 * time.Second
 	maxConcurrency = 5
 	cooldownPeriod = time.Hour
+	// ouiCacheTTL bounds how often an OUI is queried: a resolved (or
+	// not-found) OUI is cached for this long, so each OUI is looked up at
+	// most once per day even across restarts (the cache is persisted).
+	ouiCacheTTL = 24 * time.Hour
 )
 
+type ouiEntry struct {
+	Vendor string `json:"vendor"`
+	Ts     int64  `json:"ts"`
+}
+
 var (
-	ouiCacheMu    sync.Mutex
-	ouiCache      = map[string]string{}
-	ouiLoaded     bool
+	ouiCacheMu sync.Mutex
+	ouiCache   = map[string]ouiEntry{}
+	ouiLoaded  bool
+	cacheDirty bool
 	cooldownUntil time.Time
 
 	// macLookup configuration is injected by the scan routine (which owns the
@@ -110,16 +120,18 @@ func isLocalAdmin(mac string) bool {
 }
 
 // resolveVendor looks up the vendor for an OUI using the maclookup.app API.
-// Results are cached in memory and on disk; on rate limiting it enters a
-// cooldown (from the X-RateLimit-Reset header or a fixed window) so subsequent
-// scans stop hammering the endpoint. Returns "" when no vendor is resolved.
+// Results (including not-found) are cached with a TTL and persisted on disk, so
+// each OUI is queried at most once per ouiCacheTTL. On rate limiting it enters
+// a cooldown (from the X-RateLimit-Reset header or a fixed window).
 func resolveVendor(oui string) string {
 	loadOUICache()
 
 	ouiCacheMu.Lock()
-	if v, ok := ouiCache[oui]; ok {
-		ouiCacheMu.Unlock()
-		return v
+	if e, ok := ouiCache[oui]; ok {
+		if time.Now().Before(time.Unix(e.Ts, 0).Add(ouiCacheTTL)) {
+			ouiCacheMu.Unlock()
+			return e.Vendor
+		}
 	}
 	if time.Now().Before(cooldownUntil) {
 		ouiCacheMu.Unlock()
@@ -170,15 +182,20 @@ func resolveVendor(oui string) string {
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return ""
 	}
-	if !data.Success || !data.Found || data.Company == "" ||
-		data.Company == "*NO COMPANY*" || data.Company == "*PRIVATE*" {
-		return ""
+
+	vendor := ""
+	if data.Success && data.Found && data.Company != "" &&
+		data.Company != "*NO COMPANY*" && data.Company != "*PRIVATE*" {
+		vendor = data.Company
 	}
 
+	// Cache both hits and misses for ouiCacheTTL so unknown OUIs are not
+	// re-queried on every scan.
 	ouiCacheMu.Lock()
-	ouiCache[oui] = data.Company
+	ouiCache[oui] = ouiEntry{Vendor: vendor, Ts: time.Now().Unix()}
+	cacheDirty = true
 	ouiCacheMu.Unlock()
-	return data.Company
+	return vendor
 }
 
 // resolveVendors fills the Hardware field of hosts whose vendor is still
@@ -193,8 +210,6 @@ func resolveVendors(hosts []models.Host) {
 
 	sem := make(chan struct{}, maxConcurrency)
 	var wg sync.WaitGroup
-	var dirtyMu sync.Mutex
-	dirty := false
 
 	for i := range hosts {
 		if !isUnknownHardware(hosts[i].Hw) {
@@ -218,17 +233,15 @@ func resolveVendors(hosts []models.Host) {
 			ouiCacheMu.Lock()
 			hosts[idx].Hw = vendor
 			ouiCacheMu.Unlock()
-			dirtyMu.Lock()
-			dirty = true
-			dirtyMu.Unlock()
 		}(i, oui)
 	}
 
 	wg.Wait()
 
 	ouiCacheMu.Lock()
-	if dirty {
+	if cacheDirty {
 		saveOUICache()
+		cacheDirty = false
 	}
 	ouiCacheMu.Unlock()
 }
