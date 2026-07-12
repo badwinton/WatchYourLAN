@@ -43,8 +43,16 @@ func EnrichHosts(hosts []models.Host) []models.Host {
 		}
 	}
 
-	avahi := discoverAvahiBrowse(ipSet)
-	ssdp := discoverSSDP(ipSet)
+	avahi := make(map[string]hostIdentity)
+	ssdp := make(map[string]hostIdentity)
+
+	// Skip the expensive mDNS/SSDP discovery when every found host already
+	// has a usable name and known hardware. DNS reverse lookups below are
+	// still attempted for each IP as they are comparatively cheap.
+	if needsDiscovery(hosts) {
+		avahi = discoverAvahiBrowse(ipSet)
+		ssdp = discoverSSDP(ipSet)
+	}
 
 	for i := range hosts {
 		names := lookupHostNames(hosts[i].IP)
@@ -68,6 +76,18 @@ func EnrichHosts(hosts []models.Host) []models.Host {
 	}
 
 	return hosts
+}
+
+// needsDiscovery reports whether any host still lacks a usable name or has
+// unknown hardware, in which case the (costly) mDNS/SSDP discovery is worth
+// running.
+func needsDiscovery(hosts []models.Host) bool {
+	for _, host := range hosts {
+		if strings.TrimSpace(host.Name) == "" || isUnknownHardware(host.Hw) {
+			return true
+		}
+	}
+	return false
 }
 
 func lookupHostNames(ip string) []string {
