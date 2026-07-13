@@ -12,7 +12,22 @@ export interface Host {
 	Date:  string;
 	Known: number;
 	Now:   number;
+	Ports: string;
 };
+
+export interface HostInfo {
+	IP:               string;
+	Names:           string[];
+	Manufacturer:    string;
+	Model:           string;
+	ModelNumber:     string;
+	ModelDescription: string;
+	Serial:          string;
+	PresentationURL: string;
+	Hardware:        string;
+	DeviceType:      string;
+	Services:        string[];
+}
 
 export interface Conf {
 	Host:	   string;
@@ -30,6 +45,7 @@ export interface Conf {
 	ShoutURL:  string;
 	MacLookup: string;
 	MacLookupKey: string;
+	PortScan: string;
 	UseDB:     string;
 	PGConnect: string;
 	// InfluxDB
@@ -54,6 +70,7 @@ export const emptyHost:Host = {
 	Date:  "",
 	Known: 0,
 	Now:   0,
+	Ports: "",
 };
 
 export const emptyConf:Conf = {
@@ -72,6 +89,7 @@ export const emptyConf:Conf = {
 	ShoutURL: "",
 	MacLookup: "false",
 	MacLookupKey: "",
+	PortScan: "true",
 	UseDB: "",
 	PGConnect: "",
 	InfluxEnable:  false,

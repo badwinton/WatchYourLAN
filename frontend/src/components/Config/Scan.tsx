@@ -64,6 +64,21 @@ function Scan() {
               <td><input name="mackey" type="text" class="form-control" value={appConfig().MacLookupKey}></input></td>
             </tr>
             <tr>
+              <td>Port scan (auto)<br/><small class="text-muted">probes common TCP ports</small></td>
+              <td><select name="portscan" class="form-select">
+                <Show
+                  when={appConfig().PortScan == "true"}
+                  fallback={<>
+                    <option value="true">true</option>
+                    <option value="false" selected>false</option>
+                  </>}
+                >
+                  <option value="true" selected>true</option>
+                  <option value="false">false</option>
+                </Show>
+              </select></td>
+            </tr>
+            <tr>
               <td>Trim History (hours)</td>
               <td><input name="trim" type="number" class="form-control" value={appConfig().TrimHist}></input></td>
             </tr>

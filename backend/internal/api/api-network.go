@@ -27,6 +27,22 @@ func getPortState(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, state)
 }
 
+// getHostDiscovery godoc
+// @Summary      Discover a host
+// @Description  Run mDNS and SSDP/UPnP discovery for a single IP and return the
+// @Description  aggregated manufacturer, model, serial, services and other
+// @Description  advertised details.
+// @Tags         network
+// @Produce      json
+// @Param        ip    path      string  true  "IP address of the host"
+// @Success      200   {object}  check.HostInfo
+// @Router       /host_discovery/{ip} [get]
+func getHostDiscovery(c *gin.Context) {
+	ip := c.Param("ip")
+	info := check.DiscoverHost(ip)
+	c.IndentedJSON(http.StatusOK, info)
+}
+
 // sendWOL godoc
 // @Summary      Send Wake-on-LAN packet
 // @Description  Send a magic packet to wake up a host by its MAC address

@@ -21,6 +21,8 @@ type Conf struct {
 	// MAC vendor lookup (external API, opt-in)
 	MacLookup    string
 	MacLookupKey string
+	// Port scan (auto)
+	PortScan string
 	// PostgreSQL
 	UseDB     string
 	PGConnect string
@@ -44,6 +46,7 @@ type Host struct {
 	IP    string `gorm:"column:IP"`
 	Mac   string `gorm:"column:MAC"`
 	Hw    string `gorm:"column:HW"`
+	Ports string `gorm:"column:PORTS"`
 	Date  string `gorm:"column:DATE"`
 	Known int    `gorm:"column:KNOWN"`
 	Now   int    `gorm:"column:NOW"`

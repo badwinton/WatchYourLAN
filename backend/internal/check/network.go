@@ -29,9 +29,16 @@ func DNS(host models.Host) (name, dns string) {
 }
 
 type hostIdentity struct {
-	names      []string
-	hardware   string
-	deviceType string
+	names            []string
+	hardware         string
+	deviceType       string
+	manufacturer     string
+	model            string
+	modelNumber      string
+	modelDescription string
+	serial           string
+	presentationURL  string
+	services         []string
 }
 
 // EnrichHosts fills host names from local DNS, mDNS and SSDP/UPnP discovery.
@@ -51,6 +58,10 @@ func EnrichHosts(hosts []models.Host) []models.Host {
 	// lookup. Runs first so its vendor name takes precedence over the generic
 	// mDNS/SSDP device classes applied below.
 	resolveVendors(hosts)
+
+	// Optionally probe common TCP ports so the UI can show what services a
+	// host exposes.
+	scanPorts(hosts)
 
 	// Skip the expensive mDNS/SSDP discovery when every found host already
 	// has a usable name and known hardware. DNS reverse lookups below are
@@ -182,6 +193,7 @@ func discoverAvahiBrowse(targetIPs map[string]struct{}) map[string]hostIdentity 
 
 		identity := identities[ip]
 		identity.names = appendUnique(identity.names, parts[3], parts[6])
+		identity.services = appendUnique(identity.services, parts[4])
 		if deviceType := mdnsDeviceType(parts[4]); deviceType != "" {
 			identity.deviceType = deviceType
 		}
@@ -257,6 +269,12 @@ func discoverSSDP(targetIPs map[string]struct{}) map[string]hostIdentity {
 		desc := fetchSSDPDescription(location)
 		identity.names = appendUnique(identity.names, desc["friendlyName"])
 		identity.hardware = buildSSDPHardware(desc, headers["server"])
+		identity.manufacturer = desc["manufacturer"]
+		identity.model = desc["modelName"]
+		identity.modelNumber = desc["modelNumber"]
+		identity.modelDescription = desc["modelDescription"]
+		identity.serial = desc["serialNumber"]
+		identity.presentationURL = desc["presentationURL"]
 		if identity.deviceType == "" {
 			identity.deviceType = ssdpDeviceType(desc["deviceType"])
 		}

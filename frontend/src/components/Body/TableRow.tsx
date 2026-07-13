@@ -1,4 +1,4 @@
-import { createSignal, Show } from "solid-js";
+import { createSignal, Show, For } from "solid-js";
 import { editNames, selectedIDs, setSelectedIDs } from "../../functions/exports";
 import { apiEditHost } from "../../functions/api";
 import { vendorIcon } from "../../functions/vendor";
@@ -8,6 +8,8 @@ import { debounce } from "@solid-primitives/scheduled";
 function TableRow(_props: any) {
 
   const [name, setName] = createSignal(_props.host.Name);
+
+  const ports = (_props.host.Ports || "").split(",").filter((p: string) => p !== "");
 
   const displayName = () => {
     const currentName = name().trim();
@@ -79,6 +81,11 @@ function TableRow(_props: any) {
       <td title={_props.host.Hw}>
         <i class={"bi " + vendorIcon(_props.host.Hw)} style="opacity:0.8;"></i>
         &nbsp;{_props.host.Hw}
+      </td>
+      <td>
+        <For each={ports}>{(port) =>
+          <a class="badge text-bg-secondary me-1 text-decoration-none" href={"http://" + _props.host.IP + ":" + port} target="_blank">{port}</a>
+        }</For>
       </td>
       <td>{_props.host.Date}</td>
       <td>

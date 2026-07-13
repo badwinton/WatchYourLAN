@@ -25,6 +25,7 @@ func read(path string) (config models.Conf) {
 	viper.SetDefault("SHOUTRRR_URL", "")
 	viper.SetDefault("MAC_LOOKUP", "false")
 	viper.SetDefault("MAC_LOOKUP_KEY", "")
+	viper.SetDefault("PORT_SCAN", "true")
 
 	viper.SetDefault("USE_DB", "sqlite")
 	viper.SetDefault("PG_CONNECT", "")
@@ -54,6 +55,7 @@ func read(path string) (config models.Conf) {
 	config.ShoutURL = viper.Get("SHOUTRRR_URL").(string)
 	config.MacLookup = viper.Get("MAC_LOOKUP").(string)
 	config.MacLookupKey = viper.Get("MAC_LOOKUP_KEY").(string)
+	config.PortScan = viper.Get("PORT_SCAN").(string)
 
 	config.UseDB = viper.Get("USE_DB").(string)
 	config.PGConnect = viper.Get("PG_CONNECT").(string)

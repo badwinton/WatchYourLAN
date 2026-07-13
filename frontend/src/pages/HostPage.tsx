@@ -6,6 +6,7 @@ import { apiGetHost } from "../functions/api";
 import HostCard from "../components/HostPage/HostCard";
 import Ping from "../components/HostPage/Ping";
 import HistCard from "../components/HostPage/HistCard";
+import { HostDiscovery } from "../components/HostPage/HostDiscovery";
 import { emptyHost, Host } from "../functions/exports";
 
 function HostPage() {
@@ -34,6 +35,7 @@ function HostPage() {
         <HistCard mac={currentHost().Mac}></HistCard>
       </div>
     </div>
+    <HostDiscovery ip={currentHost().IP}></HostDiscovery>
     </>
   )
 }

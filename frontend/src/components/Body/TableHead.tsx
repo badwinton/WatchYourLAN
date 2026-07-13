@@ -27,7 +27,7 @@ function TableHead() {
     <thead>
       <tr>
         <th style="width: 2em;"></th>
-        <For each={["Name", "Iface", "IP", "MAC", "Hardware", "Date", "Known", "On"]}>{(key) =>
+        <For each={["Name", "Iface", "IP", "MAC", "Hardware", "Ports", "Date", "Known", "On"]}>{(key) =>
           <th 
             style={key === sortField() ? "color: var(--bs-primary);" : ''}
           >{key} <i

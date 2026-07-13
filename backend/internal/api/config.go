@@ -37,6 +37,7 @@ func saveSettingsHandler(c *gin.Context) {
 	}
 	conf.AppConfig.MacLookup = macLookup
 	conf.AppConfig.MacLookupKey = c.PostForm("mackey")
+	conf.AppConfig.PortScan = c.PostForm("portscan")
 
 	useDB := c.PostForm("usedb")
 	pgConnect := c.PostForm("pgconnect")

@@ -88,3 +88,11 @@ export const apiWOL = async (mac:string) => {
 
   return res;
 };
+
+export const apiHostDiscovery = async (ip:string) => {
+
+  const url = apiPath+'/api/host_discovery/'+ip;
+  const res = await (await fetch(url)).json();
+
+  return res;
+};

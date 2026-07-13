@@ -1,3 +1,4 @@
+import { For } from "solid-js";
 import { apiDelHost, apiEditHost, apiWOL } from "../../functions/api";
 import { vendorIcon } from "../../functions/vendor";
 
@@ -6,6 +7,8 @@ import { debounce } from "@solid-primitives/scheduled";
 function HostCard(_props: any) {
 
   let name:string = "";
+
+  const ports = (_props.host.Ports || "").split(",").filter((p: string) => p !== "");
 
   const debouncedApi = debounce(async (val: string) => {
       await apiEditHost(_props.host.ID, val, "");
@@ -77,6 +80,14 @@ function HostCard(_props: any) {
             <td>
               <i class={"bi " + vendorIcon(_props.host.Hw)} style="opacity:0.8;"></i>
               &nbsp;{_props.host.Hw}
+            </td>
+          </tr>
+          <tr>
+            <td>Open ports</td>
+            <td>
+              <For each={ports}>{(port) =>
+                <a class="badge text-bg-secondary me-1 text-decoration-none" href={"http://" + _props.host.IP + ":" + port} target="_blank">{port}</a>
+              }</For>
             </td>
           </tr>
           <tr>

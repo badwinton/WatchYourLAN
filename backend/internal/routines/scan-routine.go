@@ -25,6 +25,7 @@ func ScanNow() {
 
 	foundHosts := arp.Scan(conf.AppConfig.Ifaces, conf.AppConfig.ArpArgs, conf.AppConfig.ArpStrs)
 	check.SetMacLookup(conf.AppConfig.MacLookup == "true", conf.AppConfig.MacLookupKey, conf.AppConfig.DirPath)
+	check.SetPortScan(conf.AppConfig.PortScan == "true")
 	foundHosts = check.EnrichHosts(foundHosts)
 
 	compareHosts(newFoundHostIndex(foundHosts))
