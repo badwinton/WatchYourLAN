@@ -1,0 +1,23 @@
+name: Build WatchYourLAN Image
+
+on:
+  push:
+    branches:
+      - pr237-device-identity
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        run: |
+          docker buildx build \
+            --platform linux/arm64 \
+            -t watchyourlan:dev \
+            -f Dockerfile .
