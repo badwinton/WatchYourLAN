@@ -15,6 +15,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Limit builder to 1 CPU
+        run: |
+          sleep 3
+          BUILDER=$(docker ps --filter name=buildx --format '{{.ID}}' | head -1)
+          docker update --cpus=1 "$BUILDER"
+          echo "Limited builder $BUILDER to 1 CPU"
+
       - name: Build image
         run: |
           docker buildx build \
