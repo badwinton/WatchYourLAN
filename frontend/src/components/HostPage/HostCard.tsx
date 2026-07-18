@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { apiDelHost, apiEditHost, apiWOL } from "../../functions/api";
+import { apiDelHost, apiEditHost, apiRefreshOUI, apiWOL } from "../../functions/api";
 import { vendorIcon } from "../../functions/vendor";
 
 import { debounce } from "@solid-primitives/scheduled"; 
@@ -38,6 +38,12 @@ function HostCard(_props: any) {
   const handleWOL = async () => {
     
     await apiWOL(_props.host.Mac);
+  };
+
+  const handleRefreshOUI = async () => {
+
+    const updated = await apiRefreshOUI(_props.host.ID);
+    _props.host.Hw = updated.Hw;
   };
 
   return (
@@ -121,6 +127,8 @@ function HostCard(_props: any) {
           </tbody>
         </table>
         <button type="button" onClick={handleDel} class="btn btn-outline-danger">Delete host</button>
+        &nbsp;
+        <button type="button" onClick={handleRefreshOUI} class="btn btn-outline-primary">Refresh Vendor</button>
       </div>
     </div>
   )

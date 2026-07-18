@@ -104,6 +104,19 @@ func normalizeOUI(mac string) string {
 	return oui
 }
 
+// NormalizeOUI is the exported wrapper around normalizeOUI for use by other
+// packages (e.g. the API handler).
+func NormalizeOUI(mac string) string {
+	return normalizeOUI(mac)
+}
+
+// ResolveVendorForOUI is the exported wrapper around resolveVendor for use by
+// other packages (e.g. the API handler). It looks up the vendor for the given
+// OUI using the external MAC lookup API.
+func ResolveVendorForOUI(oui string) string {
+	return resolveVendor(oui)
+}
+
 // isLocalAdmin reports whether the MAC's universally/locally-administered bit
 // is set. Locally administered addresses have no registered OUI vendor, so
 // querying them is pointless.
@@ -152,7 +165,7 @@ func resolveVendor(oui string) string {
 	resp, err := client.Get(reqURL)
 	if err != nil {
 		slog.Debug("MAC lookup request failed", "oui", oui, "err", err)
-		return ""
+		return "" // don't cache network errors
 	}
 	defer resp.Body.Close()
 
@@ -161,10 +174,10 @@ func resolveVendor(oui string) string {
 		applyCooldown(resp)
 		ouiCacheMu.Unlock()
 		slog.Warn("MAC lookup rate limited; pausing lookups", "until", cooldownUntil.Format(time.RFC3339))
-		return ""
+		return "" // don't cache rate-limit responses
 	}
 	if resp.StatusCode != http.StatusOK {
-		return ""
+		return "" // don't cache server errors
 	}
 
 	// Proactively back off once the quota for this window is exhausted.
@@ -180,7 +193,7 @@ func resolveVendor(oui string) string {
 		Company string `json:"company"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return ""
+		return "" // don't cache decode errors
 	}
 
 	vendor := ""
@@ -189,13 +202,30 @@ func resolveVendor(oui string) string {
 		vendor = data.Company
 	}
 
-	// Cache both hits and misses for ouiCacheTTL so unknown OUIs are not
-	// re-queried on every scan.
+	// Cache successful responses (including definitive "not found") so
+	// known OUIs are not re-queried on every scan. Transient failures
+	// (rate-limit, network, server errors) are NOT cached so they will
+	// be retried on the next scan.
 	ouiCacheMu.Lock()
 	ouiCache[oui] = ouiEntry{Vendor: vendor, Ts: time.Now().Unix()}
 	cacheDirty = true
 	ouiCacheMu.Unlock()
 	return vendor
+}
+
+// InvalidateOUICache removes the cache entry for the given OUI so the next
+// resolveVendor call will fetch fresh data from the API.
+func InvalidateOUICache(raw string) {
+	loadOUICache()
+	normalized := strings.ToUpper(strings.NewReplacer(":", "", "-", "", ".", "").Replace(raw))
+	if len(normalized) < 6 {
+		return
+	}
+	ouiCacheMu.Lock()
+	delete(ouiCache, normalized[:6])
+	cacheDirty = true
+	ouiCacheMu.Unlock()
+	saveOUICache()
 }
 
 // resolveVendors fills the Hardware field of hosts whose vendor is still

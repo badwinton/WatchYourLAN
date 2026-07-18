@@ -118,3 +118,32 @@ func editHost(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, "OK")
 }
+
+// refreshOUI godoc
+// @Summary      Refresh vendor for a host
+// @Description  Clear the cached OUI lookup and re-fetch the vendor from the
+// @Description  external MAC lookup API, then update the host's Hardware field.
+// @Tags         hosts
+// @Produce      json
+// @Param        id   path      string  true  "Host ID"
+// @Success      200  {object}  models.Host
+// @Router       /host/refresh_oui/{id} [get]
+func refreshOUI(c *gin.Context) {
+	idStr := c.Param("id")
+	host := getHostByID(idStr) // functions.go
+
+	oui := check.NormalizeOUI(host.Mac)
+	if oui == "" {
+		c.IndentedJSON(http.StatusOK, host)
+		return
+	}
+
+	check.InvalidateOUICache(oui)
+	vendor := check.ResolveVendorForOUI(oui)
+	if vendor != "" {
+		host.Hw = vendor
+		gdb.Update("now", host)
+	}
+
+	c.IndentedJSON(http.StatusOK, host)
+}

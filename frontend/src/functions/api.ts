@@ -96,3 +96,11 @@ export const apiHostDiscovery = async (ip:string) => {
 
   return res;
 };
+
+export const apiRefreshOUI = async (id:number) => {
+
+  const url = apiPath+'/api/host/refresh_oui/'+id;
+  const res = await (await fetch(url)).json();
+
+  return res;
+};

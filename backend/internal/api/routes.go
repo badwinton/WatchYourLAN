@@ -17,6 +17,7 @@ func Routes(router *gin.Engine) {
 		r0.GET("/host/:id", getHost)               // api-hosts.go
 		r0.GET("/host/del/:id", delHost)           // api-hosts.go
 		r0.GET("/host/add/:mac", addHost)          // api-hosts.go
+		r0.GET("/host/refresh_oui/:id", refreshOUI) // api-hosts.go
 
 		r0.GET("/config", getConfig)        // api-system.go
 		r0.GET("/notify_test", notifyTest)  // api-system.go
