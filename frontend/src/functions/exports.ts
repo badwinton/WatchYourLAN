@@ -2,18 +2,21 @@ import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
 export interface Host {
-	ID:    number;
-	Name:  string;
-	DNS:   string;
-	Iface: string;
-	IP:    string;
-	Mac:   string;
-	Hw:    string;
-	HwApi: string;
-	Date:  string;
-	Known: number;
-	Now:   number;
-	Ports: string;
+	ID:       number;
+	Name:     string;
+	DNS:      string;
+	Iface:    string;
+	IP:       string;
+	Mac:      string;
+	Hw:       string;
+	HwApi:    string;
+	Date:     string;
+	Known:    number;
+	Now:      number;
+	Ports:    string;
+	OsName:   string;
+	DevType:  string;
+	Services: string;
 };
 
 export interface HostInfo {
@@ -47,6 +50,7 @@ export interface Conf {
 	MacLookup: string;
 	MacLookupKey: string;
 	PortScan: string;
+	NmapScan: string;
 	UseDB:     string;
 	PGConnect: string;
 	// InfluxDB
@@ -61,18 +65,21 @@ export interface Conf {
 };
 
 export const emptyHost:Host = {
-	ID:    0,
-	Name:  "",
-	DNS:   "",
-	Iface: "",
-	IP:    "",
-	Mac:   "",
-	Hw:    "",
-	HwApi: "",
-	Date:  "",
-	Known: 0,
-	Now:   0,
-	Ports: "",
+	ID:       0,
+	Name:     "",
+	DNS:      "",
+	Iface:    "",
+	IP:       "",
+	Mac:      "",
+	Hw:       "",
+	HwApi:    "",
+	Date:     "",
+	Known:    0,
+	Now:      0,
+	Ports:    "",
+	OsName:   "",
+	DevType:  "",
+	Services: "",
 };
 
 export const emptyConf:Conf = {
@@ -92,6 +99,7 @@ export const emptyConf:Conf = {
 	MacLookup: "false",
 	MacLookupKey: "",
 	PortScan: "true",
+	NmapScan: "false",
 	UseDB: "",
 	PGConnect: "",
 	InfluxEnable:  false,

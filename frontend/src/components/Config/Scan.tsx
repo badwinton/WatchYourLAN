@@ -79,6 +79,21 @@ function Scan() {
               </select></td>
             </tr>
             <tr>
+              <td>Nmap OS/service detection<br/><small class="text-muted">detects OS, device type, and service versions (slower)</small></td>
+              <td><select name="nmapscan" class="form-select">
+                <Show
+                  when={appConfig().NmapScan == "true"}
+                  fallback={<>
+                    <option value="true">true</option>
+                    <option value="false" selected>false</option>
+                  </>}
+                >
+                  <option value="true" selected>true</option>
+                  <option value="false">false</option>
+                </Show>
+              </select></td>
+            </tr>
+            <tr>
               <td>Trim History (hours)</td>
               <td><input name="trim" type="number" class="form-control" value={appConfig().TrimHist}></input></td>
             </tr>

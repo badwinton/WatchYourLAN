@@ -91,6 +91,8 @@ function TableRow(_props: any) {
         <i class={"bi " + vendorIcon(_props.host.HwApi)} style="opacity:0.8;"></i>
         &nbsp;{_props.host.HwApi}
       </td>
+      <td title={_props.host.OsName}>{_props.host.OsName}</td>
+      <td title={_props.host.DevType}>{_props.host.DevType}</td>
       <td>
         <For each={ports}>{(port) =>
           <a class="badge text-bg-secondary me-1 text-decoration-none" href={"http://" + _props.host.IP + ":" + port} target="_blank">{port}</a>

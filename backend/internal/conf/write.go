@@ -33,6 +33,7 @@ func Write(config models.Conf) {
 	viper.Set("MAC_LOOKUP", config.MacLookup)
 	viper.Set("MAC_LOOKUP_KEY", config.MacLookupKey)
 	viper.Set("PORT_SCAN", config.PortScan)
+	viper.Set("NMAP_SCAN", config.NmapScan)
 
 	viper.Set("USE_DB", config.UseDB)
 	viper.Set("PG_CONNECT", config.PGConnect)

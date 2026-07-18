@@ -11,6 +11,8 @@ function TableHead() {
     field === "Mac" ? field = "MAC" : '';
     field === "Hw" ? field = "ARP Vendor" : '';
     field === "HwApi" ? field = "API Vendor" : '';
+    field === "OsName" ? field = "OS" : '';
+    field === "DevType" ? field = "Device" : '';
     field === "Now" ? field = "On" : '';
     setSortField(field);
   };
@@ -21,6 +23,8 @@ function TableHead() {
     sortBy === "MAC" ? sortBy = "Mac" : '';
     sortBy === "ARP Vendor" ? sortBy = "Hw" : '';
     sortBy === "API Vendor" ? sortBy = "HwApi" : '';
+    sortBy === "OS" ? sortBy = "OsName" : '';
+    sortBy === "Device" ? sortBy = "DevType" : '';
     sortBy === "On" ? sortBy = "Now" : '';
     sortByAnyField(sortBy as keyof Host);
   };
@@ -29,7 +33,7 @@ function TableHead() {
     <thead>
       <tr>
         <th style="width: 2em;"></th>
-        <For each={["Name", "Iface", "IP", "MAC", "ARP Vendor", "API Vendor", "Ports", "Date", "Known", "On"]}>{(key) =>
+        <For each={["Name", "Iface", "IP", "MAC", "ARP Vendor", "API Vendor", "OS", "Device", "Ports", "Date", "Known", "On"]}>{(key) =>
           <th 
             style={key === sortField() ? "color: var(--bs-primary);" : ''}
           >{key} <i

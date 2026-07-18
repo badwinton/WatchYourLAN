@@ -26,6 +26,7 @@ func ScanNow() {
 	foundHosts := arp.Scan(conf.AppConfig.Ifaces, conf.AppConfig.ArpArgs, conf.AppConfig.ArpStrs)
 	check.SetMacLookup(conf.AppConfig.MacLookup == "true", conf.AppConfig.MacLookupKey, conf.AppConfig.DirPath)
 	check.SetPortScan(conf.AppConfig.PortScan == "true")
+	check.SetNmapScan(conf.AppConfig.NmapScan == "true")
 	foundHosts = check.EnrichHosts(foundHosts)
 
 	compareHosts(newFoundHostIndex(foundHosts))
@@ -92,6 +93,15 @@ func compareHosts(foundHosts *foundHostIndex) {
 			}
 			if fHost.HwApi != "" {
 				aHost.HwApi = fHost.HwApi
+			}
+			if fHost.OsName != "" {
+				aHost.OsName = fHost.OsName
+			}
+			if fHost.DevType != "" {
+				aHost.DevType = fHost.DevType
+			}
+			if fHost.Services != "" {
+				aHost.Services = fHost.Services
 			}
 			aHost.Date = fHost.Date
 			aHost.Now = 1

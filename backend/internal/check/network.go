@@ -63,6 +63,9 @@ func EnrichHosts(hosts []models.Host) []models.Host {
 	// host exposes.
 	scanPorts(hosts)
 
+	// Optionally run nmap for OS detection and service version scanning.
+	scanNmap(hosts)
+
 	// Skip the expensive mDNS/SSDP discovery when every found host already
 	// has a usable name and known hardware. DNS reverse lookups below are
 	// still attempted for each IP as they are comparatively cheap.

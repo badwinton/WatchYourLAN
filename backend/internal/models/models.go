@@ -23,6 +23,8 @@ type Conf struct {
 	MacLookupKey string
 	// Port scan (auto)
 	PortScan string
+	// Nmap OS/service detection (opt-in)
+	NmapScan string
 	// PostgreSQL
 	UseDB     string
 	PGConnect string
@@ -39,18 +41,21 @@ type Conf struct {
 
 // Host - one host
 type Host struct {
-	ID     int    `gorm:"column:ID;primaryKey"`
-	Name   string `gorm:"column:NAME"`
-	DNS    string `gorm:"column:DNS"`
-	Iface  string `gorm:"column:IFACE"`
-	IP     string `gorm:"column:IP"`
-	Mac    string `gorm:"column:MAC"`
-	Hw     string `gorm:"column:HW"`
-	HwApi  string `gorm:"column:HW_API"`
-	Ports  string `gorm:"column:PORTS"`
-	Date   string `gorm:"column:DATE"`
-	Known  int    `gorm:"column:KNOWN"`
-	Now    int    `gorm:"column:NOW"`
+	ID        int    `gorm:"column:ID;primaryKey"`
+	Name      string `gorm:"column:NAME"`
+	DNS       string `gorm:"column:DNS"`
+	Iface     string `gorm:"column:IFACE"`
+	IP        string `gorm:"column:IP"`
+	Mac       string `gorm:"column:MAC"`
+	Hw        string `gorm:"column:HW"`
+	HwApi     string `gorm:"column:HW_API"`
+	Ports     string `gorm:"column:PORTS"`
+	OsName    string `gorm:"column:OS_NAME"`
+	DevType   string `gorm:"column:DEV_TYPE"`
+	Services  string `gorm:"column:SERVICES"`
+	Date      string `gorm:"column:DATE"`
+	Known     int    `gorm:"column:KNOWN"`
+	Now       int    `gorm:"column:NOW"`
 }
 
 // Stat - status

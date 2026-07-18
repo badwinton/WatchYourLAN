@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { apiDelHost, apiEditHost, apiRefreshOUI, apiWOL } from "../../functions/api";
 import { vendorIcon } from "../../functions/vendor";
 
@@ -103,6 +103,24 @@ function HostCard(_props: any) {
               }</For>
             </td>
           </tr>
+          <Show when={_props.host.OsName}>
+          <tr>
+            <td>OS</td>
+            <td>{_props.host.OsName}</td>
+          </tr>
+          </Show>
+          <Show when={_props.host.DevType}>
+          <tr>
+            <td>Device type</td>
+            <td>{_props.host.DevType}</td>
+          </tr>
+          </Show>
+          <Show when={_props.host.Services}>
+          <tr>
+            <td>Services</td>
+            <td><small>{_props.host.Services}</small></td>
+          </tr>
+          </Show>
           <tr>
             <td>Date</td>
             <td>{_props.host.Date}</td>
