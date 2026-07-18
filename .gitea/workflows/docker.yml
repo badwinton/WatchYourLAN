@@ -16,7 +16,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver: docker-container
-          driver-opts: cpu=1
           buildkitd-flags: --oci-worker-no-process-sandbox
 
       - name: Build image
