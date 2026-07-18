@@ -9,6 +9,7 @@ export interface Host {
 	IP:    string;
 	Mac:   string;
 	Hw:    string;
+	HwApi: string;
 	Date:  string;
 	Known: number;
 	Now:   number;
@@ -67,6 +68,7 @@ export const emptyHost:Host = {
 	IP:    "",
 	Mac:   "",
 	Hw:    "",
+	HwApi: "",
 	Date:  "",
 	Known: 0,
 	Now:   0,

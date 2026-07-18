@@ -141,7 +141,7 @@ func refreshOUI(c *gin.Context) {
 	check.InvalidateOUICache(oui)
 	vendor := check.ResolveVendorForOUI(oui)
 	if vendor != "" {
-		host.Hw = vendor
+		host.HwApi = vendor
 		gdb.Update("now", host)
 	}
 

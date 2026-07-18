@@ -9,7 +9,8 @@ function TableHead() {
   const showSort = () => {
     let field = localStorage.getItem("sortField") as string;
     field === "Mac" ? field = "MAC" : '';
-    field === "Hw" ? field = "Hardware" : '';
+    field === "Hw" ? field = "ARP Vendor" : '';
+    field === "HwApi" ? field = "API Vendor" : '';
     field === "Now" ? field = "On" : '';
     setSortField(field);
   };
@@ -18,7 +19,8 @@ function TableHead() {
   const handleSort = (sortBy: string) => {
     setSortField(sortBy);
     sortBy === "MAC" ? sortBy = "Mac" : '';
-    sortBy === "Hardware" ? sortBy = "Hw" : '';
+    sortBy === "ARP Vendor" ? sortBy = "Hw" : '';
+    sortBy === "API Vendor" ? sortBy = "HwApi" : '';
     sortBy === "On" ? sortBy = "Now" : '';
     sortByAnyField(sortBy as keyof Host);
   };
@@ -27,7 +29,7 @@ function TableHead() {
     <thead>
       <tr>
         <th style="width: 2em;"></th>
-        <For each={["Name", "Iface", "IP", "MAC", "Hardware", "Ports", "Date", "Known", "On"]}>{(key) =>
+        <For each={["Name", "Iface", "IP", "MAC", "ARP Vendor", "API Vendor", "Ports", "Date", "Known", "On"]}>{(key) =>
           <th 
             style={key === sortField() ? "color: var(--bs-primary);" : ''}
           >{key} <i

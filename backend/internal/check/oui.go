@@ -228,10 +228,11 @@ func InvalidateOUICache(raw string) {
 	saveOUICache()
 }
 
-// resolveVendors fills the Hardware field of hosts whose vendor is still
-// unknown, using the external MAC lookup API. Resolution runs concurrently with
-// a bounded worker pool but only when the feature is enabled. Hosts get a
-// vendor name that the later mDNS/SSDP step will not override.
+// resolveVendors fills the Hardware field of hosts using the external MAC
+// lookup API. Resolution runs concurrently with a bounded worker pool but only
+// when the feature is enabled. The API result always takes precedence over
+// whatever arp-scan's OUI database returned, since the external DB is more
+// frequently updated. The cache prevents redundant API calls for known OUIs.
 func resolveVendors(hosts []models.Host) {
 	if !macLookupEnabled {
 		return
@@ -242,9 +243,6 @@ func resolveVendors(hosts []models.Host) {
 	var wg sync.WaitGroup
 
 	for i := range hosts {
-		if !isUnknownHardware(hosts[i].Hw) {
-			continue
-		}
 		oui := normalizeOUI(hosts[i].Mac)
 		if oui == "" || isLocalAdmin(hosts[i].Mac) {
 			continue
@@ -261,7 +259,7 @@ func resolveVendors(hosts []models.Host) {
 				return
 			}
 			ouiCacheMu.Lock()
-			hosts[idx].Hw = vendor
+			hosts[idx].HwApi = vendor
 			ouiCacheMu.Unlock()
 		}(i, oui)
 	}

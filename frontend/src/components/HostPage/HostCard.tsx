@@ -82,10 +82,17 @@ function HostCard(_props: any) {
             <td>{_props.host.Mac}</td>
           </tr>
           <tr>
-            <td>Hardware</td>
+            <td>ARP Vendor</td>
             <td>
               <i class={"bi " + vendorIcon(_props.host.Hw)} style="opacity:0.8;"></i>
               &nbsp;{_props.host.Hw}
+            </td>
+          </tr>
+          <tr>
+            <td>API Vendor</td>
+            <td>
+              <i class={"bi " + vendorIcon(_props.host.HwApi)} style="opacity:0.8;"></i>
+              &nbsp;{_props.host.HwApi}
             </td>
           </tr>
           <tr>

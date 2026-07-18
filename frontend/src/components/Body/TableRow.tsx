@@ -17,6 +17,11 @@ function TableRow(_props: any) {
       return currentName;
     }
 
+    const hwApi = (_props.host.HwApi || "").trim();
+    if (hwApi !== "") {
+      return hwApi;
+    }
+
     const hardware = (_props.host.Hw || "").trim();
     if (hardware !== "" && !hardware.startsWith("(Unknown")) {
       return hardware;
@@ -81,6 +86,10 @@ function TableRow(_props: any) {
       <td title={_props.host.Hw}>
         <i class={"bi " + vendorIcon(_props.host.Hw)} style="opacity:0.8;"></i>
         &nbsp;{_props.host.Hw}
+      </td>
+      <td title={_props.host.HwApi}>
+        <i class={"bi " + vendorIcon(_props.host.HwApi)} style="opacity:0.8;"></i>
+        &nbsp;{_props.host.HwApi}
       </td>
       <td>
         <For each={ports}>{(port) =>

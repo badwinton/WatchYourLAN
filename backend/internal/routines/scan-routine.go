@@ -87,9 +87,12 @@ func compareHosts(foundHosts *foundHostIndex) {
 			if aHost.DNS == "" && fHost.DNS != "" {
 				aHost.DNS = fHost.DNS
 			}
-		if fHost.Hw != "" {
-			aHost.Hw = fHost.Hw
-		}
+			if fHost.Hw != "" {
+				aHost.Hw = fHost.Hw
+			}
+			if fHost.HwApi != "" {
+				aHost.HwApi = fHost.HwApi
+			}
 			aHost.Date = fHost.Date
 			aHost.Now = 1
 

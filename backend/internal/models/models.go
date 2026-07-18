@@ -39,17 +39,18 @@ type Conf struct {
 
 // Host - one host
 type Host struct {
-	ID    int    `gorm:"column:ID;primaryKey"`
-	Name  string `gorm:"column:NAME"`
-	DNS   string `gorm:"column:DNS"`
-	Iface string `gorm:"column:IFACE"`
-	IP    string `gorm:"column:IP"`
-	Mac   string `gorm:"column:MAC"`
-	Hw    string `gorm:"column:HW"`
-	Ports string `gorm:"column:PORTS"`
-	Date  string `gorm:"column:DATE"`
-	Known int    `gorm:"column:KNOWN"`
-	Now   int    `gorm:"column:NOW"`
+	ID     int    `gorm:"column:ID;primaryKey"`
+	Name   string `gorm:"column:NAME"`
+	DNS    string `gorm:"column:DNS"`
+	Iface  string `gorm:"column:IFACE"`
+	IP     string `gorm:"column:IP"`
+	Mac    string `gorm:"column:MAC"`
+	Hw     string `gorm:"column:HW"`
+	HwApi  string `gorm:"column:HW_API"`
+	Ports  string `gorm:"column:PORTS"`
+	Date   string `gorm:"column:DATE"`
+	Known  int    `gorm:"column:KNOWN"`
+	Now    int    `gorm:"column:NOW"`
 }
 
 // Stat - status
